@@ -25,7 +25,7 @@ const WIND_PULL = 0.02;
 const SLIDE_WIND_GAIN = 0.15;
 
 // --- 棒人間関連 ---
-let walker = null; // 現在の棒人間（いない時はnull）
+let walker = null;      // 現在の棒人間（いない時はnull）
 let nextWalkerTime = 0; // 次に出す時間（frameCount基準）
 
 function setup() {
@@ -40,9 +40,8 @@ function windowResized() {
 
 // --- 棒人間出現スケジューリング ---
 function scheduleNextWalker() {
-  // 0〜10秒後に新しい棒人間を出す
-  const delaySec = random(0, 10);
-  nextWalkerTime = frameCount + delaySec * 60; // 60fps換算
+  const delaySec = random(0, 10);          // 0〜10秒
+  nextWalkerTime = frameCount + delaySec * 60; // 60fps想定
 }
 
 function spawnWalker() {
@@ -82,9 +81,7 @@ function draw() {
   const umbrellaCY = height - stemH;
 
   // 雨生成
-  if (balls.length < MAX_BALLS && frameCount % SPAWN_INTERVAL === 0) {
-    spawnBall();
-  }
+  if (balls.length < MAX_BALLS && frameCount % SPAWN_INTERVAL === 0) spawnBall();
 
   noStroke();
   fill(255);
@@ -98,11 +95,12 @@ function draw() {
       b.theta += dTheta;
       b.x = umbrellaCX + (canopyR + R) * Math.cos(b.theta);
       b.y = umbrellaCY + (canopyR + R) * Math.sin(b.theta);
+
       if ((b.side === -1 && b.theta <= Math.PI + EDGE_EPS) ||
           (b.side === +1 && b.theta >= TWO_PI - EDGE_EPS)) {
         const tx = -Math.sin(b.theta);
-        const ty = Math.cos(b.theta);
-        const v = max(SLIDE_SPEED, SPEED * 0.8);
+        const ty =  Math.cos(b.theta);
+        const v  = max(SLIDE_SPEED, SPEED * 0.8);
         const s0 = wind * tx;
         b.vx = tx * v + s0 * SLIDE_WIND_GAIN;
         b.vy = max(ty * v, SPEED * 0.8);
@@ -114,10 +112,12 @@ function draw() {
       b.vx = lerp(b.vx, wind, WIND_PULL);
       b.x += b.vx;
       b.y += b.vy;
+
       const dx = b.x - umbrellaCX;
       const dy = b.y - umbrellaCY;
       const dist = Math.hypot(dx, dy);
       const target = canopyR + R;
+
       if (b.y <= umbrellaCY && dist <= target) {
         let theta = Math.atan2(dy, dx);
         if (theta < 0) theta += TWO_PI;
@@ -136,15 +136,12 @@ function draw() {
         }
       }
     }
+
     if (b.y > height + R) {
-      b.y = 0;
-      b.x = random(width);
-      b.vx = 0;
-      b.vy = SPEED;
-      b.mode = "fall";
-      b.theta = null;
-      b.side = 0;
+      b.y = 0; b.x = random(width); b.vx = 0; b.vy = SPEED;
+      b.mode = "fall"; b.theta = null; b.side = 0;
     }
+
     ellipse(b.x, b.y, SIZE, SIZE);
   }
 
@@ -153,8 +150,8 @@ function draw() {
 
   // --- 棒人間 ---
   if (walker) {
-    updateWalker();
-    drawWalker();
+    updateWalker();           // ← まず更新
+    if (walker) drawWalker(); // ← ここで再チェックしてから描画（重要！）
   } else if (frameCount >= nextWalkerTime) {
     spawnWalker();
   }
@@ -193,19 +190,23 @@ function updateWalker() {
 function drawWalker() {
   const groundY = height - 6;
   const torsoLen = 24;
-  const legLen = 18;
-  const armLen = 16;
-  const headR = 8;
+  const legLen   = 18;
+  const armLen   = 16;
+  const headR    = 8;
+
   const hipX = walker.x;
   const hipY = groundY - legLen;
-  const shX = hipX;
-  const shY = hipY - torsoLen;
+  const shX  = hipX;
+  const shY  = hipY - torsoLen;
+
   const s = Math.sin(walker.phase);
-  const strideLeg = walker.ampLeg * s;
-  const strideArm = walker.ampArm * -s;
+  const strideLeg = 12 * s;
+  const strideArm = 14 * -s;
+
   stroke(255);
   strokeWeight(2);
   noFill();
+
   line(hipX, hipY, hipX - strideLeg * walker.dir, groundY);
   line(hipX, hipY, hipX + strideLeg * walker.dir, groundY);
   line(shX, shY, hipX, hipY);
