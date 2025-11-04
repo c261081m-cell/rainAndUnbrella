@@ -160,6 +160,7 @@ function draw() {
 
   // --- 傘の描画 ---
   drawUmbrella(umbrellaCX, height);
+  drawRoofs(); // 左右の屋根を描画
 
   // --- 棒人間（傘の下にいる時だけ歩く） ---
   if (walker) {
@@ -274,4 +275,23 @@ function drawWindIndicator(w) {
   line(x2, cy, x2 - 6 * dir, cy - 4);
   line(x2, cy, x2 - 6 * dir, cy + 4);
   pop();  // 復元
+}
+// --- 屋根の描画 ---
+function drawRoofs() {
+  noStroke();
+  fill(255);
+
+  // 左下の屋根（三角形）
+  beginShape();
+  vertex(0, height - 60);
+  vertex(100, height - 60);
+  vertex(0, height);
+  endShape(CLOSE);
+
+  // 右下の屋根（三角形）
+  beginShape();
+  vertex(width, height - 60);
+  vertex(width - 100, height - 60);
+  vertex(width, height);
+  endShape(CLOSE);
 }
